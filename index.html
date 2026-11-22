@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#FFF1E0">
-<title>타로 나침반 · 내 손으로 뽑는 78장의 이야기</title>
+<title>타로 나침반 · 실제 그림으로 만나는 78장의 이야기</title>
 <style>
 :root{--ink:#2B2D5B;--soft:#6E6A8F;--line:#EDE4F7;--violet:#6A4CFF;--pink:#FF6F9F;--peach:#FFB86B;--mint:#2DBF9A;--sky:#4BA9FF;--sun:#FFD45C;--card:#fff}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
@@ -106,6 +106,21 @@ textarea{min-height:96px;resize:vertical}textarea:focus,input:focus,select:focus
 @media(max-width:360px){.cover h1{font-size:22px}.rbody{grid-template-columns:78px 1fr}.coll{grid-template-columns:repeat(3,1fr)}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 @media print{.top,#actionBar,.tabs,.share,.toast,.modal{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}.det>*{display:block!important}}
+
+/* 1909 original card artwork: responsive, full card front, offline SVG fallback */
+.tcard .art{position:absolute;inset:0;overflow:hidden;border-radius:inherit}
+.tcard .art svg{width:100%;height:100%;object-fit:cover}
+.tcard .art .rws-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;background:#fcf8eb;color:transparent}
+.tcard .art .rws-image[hidden]{display:none}
+.tcard .cname{bottom:2%;left:5%;right:5%;background:rgba(255,255,255,.94);border:1px solid rgba(69,55,117,.12)}
+.tcard .cname b{font-size:clamp(9px,2.5vw,12.5px)}
+.zoom-hint{font-size:12px;color:var(--soft);text-align:center;margin:5px 0}
+.zoom-action{width:100%;margin-top:9px;border:1px solid #dbcdf3;border-radius:12px;padding:8px;background:#f6f1ff;color:#4b36b8;font-weight:800;font-size:13px}
+.zoom-frame{max-width:320px;margin:10px auto}.zoom-frame .tcard{box-shadow:0 12px 36px rgba(60,30,100,.24)}
+.zoom-story{background:#fff7e7;border-radius:12px;padding:12px;margin:12px 0}
+.zoom-story p{margin:6px 0;font-size:14px}
+.art-credit{font-size:11px;line-height:1.6;color:var(--soft);margin:7px 14px;text-align:center}
+@media(min-width:480px){.tcard .cname b{font-size:12px}}
 </style></head><body data-step="1">
 <div class="app"><header class="top"><div class="brand">✦ 타로 나침반</div><button class="top-btn" id="openHistory">📖 일기</button><button class="top-btn" id="openSettings">🔗 사주 연결</button></header>
 <div class="cover"><div class="floaty" aria-hidden="true"><i></i><i></i><i></i></div><h1 id="coverTitle"></h1><p id="coverDesc"></p><div class="progress" id="progress" aria-label="진행 단계"></div></div>
@@ -278,7 +293,27 @@ function ask(title,text,btns){modal(`<h2>${title}</h2><p class="muted">${text}</
 function palOf(c){return c.arc==='major'?['#6A4CFF','#C06BFF','#F4EEFF']:SUITS[c.sk].pal}
 function cardArt(c){const p=palOf(c),top=c.arc==='major'?ROMAN[c.number]:(RANKN[c.number]||c.number);let pips='';if(c.arc==='minor'&&c.number<=10){const ic=SUITS[c.sk].icon,n=c.number;const per=n>5?Math.ceil(n/2):n;for(let i=0;i<n;i++){const row=i<per?0:1,cnt=row?n-per:per,idx=row?i-per:i;const x=95+(idx-(cnt-1)/2)*26,y=180+row*20;pips+=`<text x="${x}" y="${y}" font-size="17" text-anchor="middle">${ic}</text>`}}else if(c.arc==='minor'){pips=`<text x="95" y="188" font-size="22" text-anchor="middle">${SUITS[c.sk].icon} ${['📜','🐎','👑','👑'][c.number-11]}</text>`}else{pips=`<text x="95" y="184" font-size="15" text-anchor="middle" fill="#fff" opacity=".9">✦ ✧ ✦</text>`}
 return `<svg viewBox="0 0 190 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="g${c.id}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${p[0]}"/><stop offset="1" stop-color="${p[1]}"/></linearGradient></defs><rect width="190" height="300" rx="14" fill="url(#g${c.id})"/><circle cx="160" cy="40" r="48" fill="#fff" opacity=".14"/><circle cx="24" cy="270" r="60" fill="#fff" opacity=".12"/><rect x="9" y="9" width="172" height="282" rx="10" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2" stroke-dasharray="2 5"/><text x="95" y="42" text-anchor="middle" font-size="18" font-weight="800" fill="#fff" font-family="Georgia,serif">${top}</text><circle cx="95" cy="104" r="50" fill="${p[2]}"/><circle cx="95" cy="104" r="50" fill="none" stroke="#fff" stroke-width="4"/><text x="95" y="124" text-anchor="middle" font-size="54">${c.emoji}</text>${pips}</svg>`}
-function cardFace(c,rev,size){return `<div class="tcard ${rev?'rev':''} ${size||''}"><div class="art">${cardArt(c)}</div><div class="cname"><b>${esc(c.name)}</b><small>${esc(c.nick)}</small></div>${rev?'<span class="revtag">↕ 거꾸로</span>':''}</div>`}
+
+/* Traditional 1909 scans from Wikimedia Commons TaionWC collection (78 items).
+   For local deployment, place optimized images at cards/{id}.webp and set USE_LOCAL_IMAGES=true. */
+const USE_LOCAL_IMAGES=false;
+const MAJOR_ART_NAMES=['RWS Tarot 00 Fool.jpg','RWS Tarot 01 Magician.jpg','RWS Tarot 02 High Priestess.jpg','RWS Tarot 03 Empress.jpg','RWS Tarot 04 Emperor.jpg','RWS Tarot 05 Hierophant.jpg','RWS Tarot 06 Lovers.jpg','RWS Tarot 07 Chariot.jpg','RWS Tarot 08 Strength.jpg','RWS Tarot 09 Hermit.jpg','RWS Tarot 10 Wheel of Fortune.jpg','RWS Tarot 11 Justice.jpg','RWS Tarot 12 Hanged Man.jpg','RWS Tarot 13 Death.jpg','RWS Tarot 14 Temperance.jpg','RWS Tarot 15 Devil.jpg','RWS Tarot 16 Tower.jpg','RWS Tarot 17 Star.jpg','RWS Tarot 18 Moon.jpg','RWS Tarot 19 Sun.jpg','RWS Tarot 20 Judgement.jpg','RWS Tarot 21 World.jpg'];
+const SUIT_ART_PREFIX={W:'Wands',C:'Cups',S:'Swords',P:'Pents'};
+function cardArtFile(c){return c.arc==='major'?MAJOR_ART_NAMES[c.number]:SUIT_ART_PREFIX[c.sk]+String(c.number).padStart(2,'0')+'.jpg'}
+function cardArtUrl(c){if(USE_LOCAL_IMAGES)return 'cards/'+c.id+'.webp';return 'https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(cardArtFile(c))+'?width=520'}
+function actualArt(c){return `<img class="rws-image" src="${esc(cardArtUrl(c))}" alt="${esc(c.name)} 전통 타로 그림" loading="lazy" decoding="async" onerror="this.hidden=true"/>`}
+/* 1909 deck visual symbols. These prompts are reading aids rather than factual predictions. */
+const MAJOR_SYMBOLS=[
+'🐶 작은 개는 함께하는 친구와 본능을 떠올리게 해요.','🪄 탁자 위 네 도구는 이미 내게 있는 재주를 떠올리게 해요.','🌙 발밑의 달과 두 기둥은 서두르지 않고 지켜보는 마음을 떠올리게 해요.','🌾 밀밭은 손수 가꾸는 사랑과 성장을 보여 줘요.','🏰 단단한 왕좌는 규칙과 책임을 떠올리게 해요.','📜 두 제자는 배우고 질문하는 모습을 보여 줘요.','💞 천사 아래 두 사람은 마음과 선택을 함께 생각하게 해요.','🛞 서로 다른 두 동물은 방향을 맞추는 일이 중요함을 알려 줘요.','🦁 사자를 달래는 손은 화내지 않는 용기를 보여 줘요.','🏮 등불은 조용한 곳에서 스스로 찾아낸 생각을 뜻해요.','🎡 돌아가는 바퀴는 바뀌는 상황을 떠올리게 해요.','⚖️ 저울은 한쪽 말만 듣지 않는 공정한 판단을 상징해요.','🙃 거꾸로 선 사람은 새로운 각도에서 보는 마음을 보여 줘요.','🌅 먼 곳의 해는 끝과 함께 찾아오는 새 시작을 떠올리게 해요.','🥛 두 컵을 오가는 물은 서두르지 않는 균형을 보여 줘요.','⛓️ 느슨한 사슬은 끊고 싶은 습관을 살펴보게 해요.','⚡ 번개 맞은 탑은 계획의 기초를 다시 보는 모습이에요.','⭐ 별빛은 힘든 뒤에도 이어지는 희망을 떠올리게 해요.','🌙 달밤의 길은 확실한 사실과 상상을 구분하라고 말해요.','☀️ 밝은 태양과 아이는 기쁨을 나누는 모습을 보여 줘요.','📯 천사의 나팔은 지나온 일을 다시 돌아보는 장면이에요.','🌍 월계수 고리는 여행을 끝내고 다음 여행을 준비하는 모습이에요.'
+];
+function cardSymbolStory(c){
+ const detail=c.arc==='major'?MAJOR_SYMBOLS[c.number]:({W:'🔥 지팡이는 의욕·행동·도전을,',C:'💧 컵은 마음·우정·관계를,',S:'🌬️ 칼은 생각·말·결정을,',P:'🌿 동전은 돈·생활·꾸준함을,'}[c.sk]+' 이 카드에 담아 읽어요.');
+ return `<div class="zoom-story"><b>🔍 그림 속 비밀 찾기</b><p><b>눈에 보이는 장면:</b> ${esc(c.scene)}</p><p>${esc(detail)}</p><p><b>나에게 던지는 질문:</b> ${esc(c.adv)}</p></div>`;
+}
+function openCardZoom(cardId,rev){const c=CARD(cardId);if(!c)return;
+ modal(`<h2>🃏 ${esc(c.name)} · 그림 크게 보기</h2><p class="help">전통 카드 그림을 확대해서 살펴보세요. ${rev?'역방향은 그림도 거꾸로 표시해요.':''}</p><div class="zoom-frame">${cardFace(c,rev,'zoomed')}</div>${cardSymbolStory(c)}<details class="det"><summary>🔎 원래 카드 의미도 살펴보기</summary><p><b>정방향:</b> ${esc(c.u)}</p><p><b>역방향:</b> ${esc(c.r)}</p></details><p class="art-credit">1909년 전통 카드 · 그림 Pamela Colman Smith · Wikimedia Commons 원본</p><button class="btn soft full" data-close>닫기</button>`);
+}
+function cardFace(c,rev,size){return `<div class="tcard ${rev?'rev':''} ${size||''}"><div class="art">${cardArt(c)}${actualArt(c)}</div><div class="cname"><b>${esc(c.name)}</b><small>${esc(c.nick)}</small></div>${rev?'<span class="revtag">↕ 거꾸로</span>':''}</div>`}
 const BACK='<div class="tback"><span>✦</span></div>';
 
 /* 해석 */
@@ -414,8 +449,8 @@ function dailyStart(){const d=load(KEYS.daily,null);if(d&&d.date===today()&&d.re
 /* 5단계: 결과 */
 function cardBlock(p,i){const sp=SP(st.spread),c=CARD(p.id),[lab,role]=sp.spots[i],sit=sitOf(st.question,st.topic);
  return `<article class="card reading"><div class="rhead"><span class="pos">${i+1}</span><div><b>${esc(lab)}</b><small>${esc(ROLE_HELP[role]||'')}</small></div></div><div class="rbody"><div class="mini">${cardFace(c,p.rev)}</div><div><h3>${esc(c.name)}</h3><p class="nick">${esc(c.nick)} · ${p.rev?'↕ 거꾸로':'↑ 바로'}</p><p class="kw">#${esc(c.kw)}</p></div></div>
- <p class="rtext">${roleText(c,p.rev,role)}</p><div class="exbox"><b>예를 들면?</b> ${esc(sit.label)} 고민이라면, ${sit.ex[exKey(c)]}</div>
- <details class="det"><summary>🔎 카드 더 알아보기</summary><p><b>전통 카드 그림 속 장면:</b> ${esc(c.scene)}</p><p><b>바로 섰을 때:</b> ${esc(c.u)}</p><p><b>거꾸로일 때:</b> ${esc(c.r)}</p><p><b>${c.arc==='major'?'메이저 아르카나(큰 그림 카드) '+ROMAN[c.number]+'번':'마이너 아르카나 · '+esc(SUITS[c.sk].nick)+'('+esc(SUITS[c.sk].theme)+')'}</b></p><p class="small muted">이 앱의 카드 그림은 전통 장면을 상징으로 줄인 창작 디자인이에요.</p></details></article>`}
+ <button class="zoom-action" type="button" data-zoom="${c.id}" data-rev="${p.rev?1:0}">🔍 전통 그림 크게 보고 비밀 찾기</button><p class="rtext">${roleText(c,p.rev,role)}</p><div class="exbox"><b>예를 들면?</b> ${esc(sit.label)} 고민이라면, ${sit.ex[exKey(c)]}</div>
+ <details class="det"><summary>🔎 카드 더 알아보기</summary><p><b>전통 카드 그림 속 장면:</b> ${esc(c.scene)}</p><p><b>바로 섰을 때:</b> ${esc(c.u)}</p><p><b>거꾸로일 때:</b> ${esc(c.r)}</p><p><b>${c.arc==='major'?'메이저 아르카나(큰 그림 카드) '+ROMAN[c.number]+'번':'마이너 아르카나 · '+esc(SUITS[c.sk].nick)+'('+esc(SUITS[c.sk].theme)+')'}</b></p><p class="small muted">이 앱은 1909년 전통 타로 그림을 보여줘요. 그림을 불러올 수 없을 때는 기존 상징 카드가 대신 나와요.</p></details></article>`}
 function resultStep(){const sp=SP(st.spread),sy=synthesis(),easy=st.resultTab==='easy',fl=friendLine();
  $('#main').innerHTML=`<div class="tabs"><button class="${easy?'on':''}" id="tEasy">🌟 쉬운 이야기</button><button class="${easy?'':'on'}" id="tExp">🔎 전문가용</button></div>
  ${easy?`<section class="card hero"><div class="spread s${sp.spots.length} small">${st.picked.map(p=>cardFace(CARD(p.id),p.rev)).join('')}</div>${st.question?`<p class="q">💬 ${esc(st.question)}</p>`:st.daily?`<p class="q">🌞 ${new Date().getMonth()+1}월 ${new Date().getDate()}일 오늘의 카드</p>`:''}
@@ -423,7 +458,7 @@ function resultStep(){const sp=SP(st.spread),sy=synthesis(),easy=st.resultTab===
  <div class="mission"><b>🎯 오늘 해볼 일</b><p>${esc(sy.mission)}</p>${sy.example&&sp.spots.length>1?`<p class="small">🎬 ${esc(sy.sit.label)} 고민이라면 → ${esc(sy.example)}</p>`:''}</div>${fl?`<div class="friend">${fl}</div>`:''}</section>
  ${sp.spots.length>1?`<h3 class="sec">🃏 카드 한 장씩 자세히</h3>`:''}${st.picked.map(cardBlock).join('')}
  <section class="card lucky">${luckyBox()}</section>`:expertBox()}
- <section class="card share"><h3>📮 나누고 기록하기</h3><div class="grid3"><button class="btn soft" id="shareText">💬 글로 보내기</button><button class="btn soft" id="shareImg">🖼️ 이미지</button><button class="btn soft" id="saveR">📖 일기에 저장</button></div><div class="grid2"><button class="btn soft" id="listen">🔊 읽어 주기</button><button class="btn soft" id="goSaju">🌳 사주 보러 가기</button></div><p class="help">질문은 기본으로 공유 글에 넣지 않아요. 카드는 질문이나 사주와 상관없이 무작위로 정해졌어요.${st.weakRandom?' (이 브라우저는 보안 난수를 지원하지 않아 일반 난수로 섞었어요)':''}</p><p class="foot">타로는 정해진 미래를 알려 주는 것이 아니라, 지금의 나를 돌아보는 재미있는 이야기예요.</p></section>`;
+ <section class="card share"><h3>📮 나누고 기록하기</h3><div class="grid3"><button class="btn soft" id="shareText">💬 글로 보내기</button><button class="btn soft" id="shareImg">🖼️ 이미지</button><button class="btn soft" id="saveR">📖 일기에 저장</button></div><div class="grid2"><button class="btn soft" id="listen">🔊 읽어 주기</button><button class="btn soft" id="goSaju">🌳 사주 보러 가기</button></div><p class="help">질문은 기본으로 공유 글에 넣지 않아요. 카드는 질문이나 사주와 상관없이 무작위로 정해졌어요.${st.weakRandom?' (이 브라우저는 보안 난수를 지원하지 않아 일반 난수로 섞었어요)':''}</p><p class="art-credit">카드 그림: 1909년 Pamela Colman Smith 원본 · Wikimedia Commons. 인터넷 연결이 필요하며 오프라인에서는 상징 그림으로 표시돼요.</p><p class="foot">타로는 정해진 미래를 알려 주는 것이 아니라, 지금의 나를 돌아보는 재미있는 이야기예요.</p></section>`;
  $('#tEasy').onclick=()=>{st.resultTab='easy';render()};$('#tExp').onclick=()=>{st.resultTab='exp';render()};$('#shareText').onclick=shareDialog;$('#shareImg').onclick=shareImage;$('#saveR').onclick=saveReading;$('#listen').onclick=listen;$('#goSaju').onclick=gotoSaju;
  actions([{label:'↺ 새 질문',fn:()=>{st.step=1;st.question='';st.picked=[];st.flipped=[];st.daily=false;if(st.source&&st.source.fromRecord)st.source=null;render()}},{label:'📖 내 타로 일기',primary:true,fn:openHistory}])}
 function luckyBox(){const ad=adviceCard().c,k=ad.arc==='major'?'M':ad.sk;const L={M:['보라·금색','별 모양 소품','“나는 지금 중요한 길 위에 있어!”'],W:['주황·빨강','따뜻한 차 한 잔','“완벽하지 않아도 일단 시작!”'],C:['하늘·파랑','좋아하는 노래 한 곡','“내 마음을 먼저 안아 주자.”'],S:['보라·은색','작은 메모장','“사실부터 차근차근!”'],P:['초록·노랑','동전 저금통','“조금씩, 꾸준히가 이긴다.”']}[k];return `<h3>🍀 오늘의 행운 처방전</h3><div class="grid3 lk"><div><span>🎨</span><b>행운 색</b>${L[0]}</div><div><span>🎁</span><b>행운 아이템</b>${L[1]}</div><div><span>🪄</span><b>오늘의 주문</b>${L[2]}</div></div><p class="help">‘${esc(ad.name)}’ 카드에서 뽑은 재미용 처방이에요.</p>`}
@@ -441,7 +476,7 @@ function openHistory(){const list=load(KEYS.history,[]),seen=new Set(load(KEYS.s
  modal(`<h2>📖 내 타로 일기</h2><p class="muted">저장한 이야기 ${L.length}개 · 만난 카드 <b>${seen.size}</b>/78장</p><div class="prog"><i style="width:${Math.round(seen.size/78*100)}%"></i></div><div class="grid2"><button class="btn soft sm" id="col">🃏 78장 도감</button><button class="btn soft sm" id="wipe">기록 모두 지우기</button></div><div class="hist">${L.length?L.slice(0,100).map(x=>`<div class="hi"><b>${esc(x.question||(x.daily?'오늘의 카드':'질문 없는 카드'))}</b><small>${new Date(x.created).toLocaleString('ko-KR')} · ${esc((SP(x.spread)||{}).title||'')} · ${x.picked.map(p=>(CARD(p.id)||{}).emoji||'').join('')}</small><div class="grid2"><button class="btn soft sm" data-load="${esc(x.id)}">다시 읽기</button><button class="btn ghost sm" data-del="${esc(x.id)}">지우기</button></div></div>`).join(''):'<p class="help">아직 저장한 이야기가 없어요.</p>'}</div><button class="btn soft full" data-close>닫기</button>`);
  $('#col').onclick=()=>openCollection(seen);$('#wipe').onclick=()=>ask('기록을 모두 지울까요?','지운 기록은 되돌릴 수 없어요. (도감은 그대로 남아요)',[{label:'모두 지우기',primary:true,fn:()=>{save(KEYS.history,[]);openHistory()}},{label:'취소',fn:openHistory}]);
  $$('[data-load]').forEach(b=>b.onclick=()=>restore(L.find(x=>x.id===b.dataset.load)));$$('[data-del]').forEach(b=>b.onclick=()=>{save(KEYS.history,L.filter(x=>x.id!==b.dataset.del));openHistory()})}
-function openCollection(seen){modal(`<h2>🃏 내가 만난 카드 ${seen.size}/78</h2><p class="muted">뽑아서 뒤집은 카드는 색이 칠해져요. 눌러서 뜻을 볼 수 있어요.</p><div class="coll">${CARDS.map(c=>`<button class="ct ${seen.has(c.id)?'seen':''}" data-cid="${c.id}"><span>${seen.has(c.id)?c.emoji:'❔'}</span>${esc(c.name)}</button>`).join('')}</div><div id="cinfo"></div><button class="btn soft full" id="backH">← 일기로</button>`);$('#backH').onclick=openHistory;$$('[data-cid]').forEach(b=>b.onclick=()=>{const c=CARD(b.dataset.cid);$('#cinfo').innerHTML=`<div class="card note"><b>${c.emoji} ${esc(c.name)} · ${esc(c.nick)}</b><p>${esc(c.u)}</p><p class="small muted">장면: ${esc(c.scene)}</p></div>`;$('#cinfo').scrollIntoView({behavior:'smooth',block:'nearest'})})}
+function openCollection(seen){modal(`<h2>🃏 내가 만난 카드 ${seen.size}/78</h2><p class="muted">뽑아서 뒤집은 카드는 색이 칠해져요. 눌러서 뜻을 볼 수 있어요.</p><div class="coll">${CARDS.map(c=>`<button class="ct ${seen.has(c.id)?'seen':''}" data-cid="${c.id}"><span>${seen.has(c.id)?c.emoji:'❔'}</span>${esc(c.name)}</button>`).join('')}</div><div id="cinfo"></div><button class="btn soft full" id="backH">← 일기로</button>`);$('#backH').onclick=openHistory;$$('[data-cid]').forEach(b=>b.onclick=()=>{const c=CARD(b.dataset.cid);$('#cinfo').innerHTML=`<div class="card note"><b>${c.emoji} ${esc(c.name)} · ${esc(c.nick)}</b><p>${esc(c.u)}</p><p class="small muted">장면: ${esc(c.scene)}</p><button class="zoom-action" data-zoom="${c.id}" data-rev="0">🔍 전통 그림 자세히 보기</button></div>`;$('#cinfo').scrollIntoView({behavior:'smooth',block:'nearest'})})}
 
 /* 공유 */
 function resultText(withQ){const sy=synthesis(),sp=SP(st.spread);const strip=s=>String(s).replace(/<[^>]+>/g,'');return `🔮 타로 나침반 · ${sp.title}\n${withQ&&st.question?'💬 '+st.question+'\n':''}\n✨ ${strip(sy.key)}\n\n${sy.paras.map(strip).join('\n\n')}\n\n🃏 나의 카드\n${st.picked.map((p,i)=>`${i+1}. ${sp.spots[i][0]}: ${CARD(p.id).name}${p.rev?' (거꾸로)':''}`).join('\n')}\n\n🎯 오늘 해볼 일: ${sy.mission}\n\n(재미로 보는 타로 이야기예요)`}
@@ -466,7 +501,7 @@ function importBridge(){let src=null;try{const h=new URLSearchParams(location.ha
 function openSettings(){const people=load('saju_people',[]);modal(`<h2>⚙️ 사주와 연결</h2><p class="muted">타로 카드는 사주와 상관없이 무작위로 뽑아요. 연결하면 질문을 주고받고, 사주 속 <b>오행 친구</b>와 카드를 함께 읽어 드려요.</p><label class="label" for="sajuUrl">명리 나침반 주소</label><input type="text" id="sajuUrl" value="${esc(sajuUrl())}"><button class="btn soft sm" id="saveUrl">주소 저장</button>${Array.isArray(people)&&people.length?`<p class="help">이 기기에 사주에서 저장한 사람이 ${people.length}명 있어요. 사주 결과 화면의 ‘🔮 타로로 이어 보기’ 버튼을 누르면 그 사람의 오행 친구가 함께 넘어와요.</p>`:'<p class="help">사주와 타로를 같은 GitHub 주소(mathlhk15-glitch.github.io)에 올리면 저장 공간을 함께 써요. 다른 곳에 있어도 질문은 주소(#)로 넘어가요.</p>'}<button class="btn ghost full" data-close>닫기</button>`);$('#saveUrl').onclick=()=>{const v=$('#sajuUrl').value.trim();if(!v||/^(javascript|data):/i.test(v))return toast('올바른 주소를 넣어 주세요.');st.prefs.sajuUrl=v;save(KEYS.settings,st.prefs);toast('저장했어요.')}}
 
 window.__tarotGotoSaju=()=>gotoSaju();window.__tarotSajuUrl=()=>sajuUrl();
-function init(){st.prefs=Object.assign({sajuUrl:DEFAULT_SAJU},load(KEYS.settings,{}));importBridge();if(st.question&&st.topic==='general')st.topic=guessTopic(st.question);render();$('#openHistory').onclick=openHistory;$('#openSettings').onclick=openSettings;addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)closeModal()})}
+function init(){document.addEventListener('click',e=>{const z=e.target.closest('[data-zoom]');if(z){e.preventDefault();openCardZoom(z.dataset.zoom,z.dataset.rev==='1');return}if(st.step!==5||!$('#modal').hidden)return;const el=e.target.closest('.tcard');if(el&&$('#main').contains(el)){const found=[...$('#main .tcard')].indexOf(el);if(found>=0){const id=st.picked[found%st.picked.length]?.id;if(id)openCardZoom(id,st.picked[found%st.picked.length].rev)}}});st.prefs=Object.assign({sajuUrl:DEFAULT_SAJU},load(KEYS.settings,{}));importBridge();if(st.question&&st.topic==='general')st.topic=guessTopic(st.question);render();$('#openHistory').onclick=openHistory;$('#openSettings').onclick=openSettings;addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)closeModal()})}
 init();
 })();
 
