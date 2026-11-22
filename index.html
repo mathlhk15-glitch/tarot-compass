@@ -208,7 +208,7 @@ P:[
 </script>
 <script>
 (()=>{'use strict';
-const VERSION='v1.1';
+const VERSION='v1.2';
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 const ROMAN=['0','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI'];
 const SUITS={W:{i:0,n:'완드',nick:'불꽃 지팡이',icon:'🔥',el:1,elName:'불',theme:'열정과 행동',pal:['#FF7A3D','#FFC35E','#FFF3D6']},C:{i:1,n:'컵',nick:'마음의 컵',icon:'🏆',el:4,elName:'물',theme:'마음과 관계',pal:['#2F9BFF','#7FD8F2','#E3F6FF']},S:{i:2,n:'소드',nick:'생각의 칼',icon:'🗡️',el:3,elName:'바람',theme:'생각과 말',pal:['#6E63D9','#B4A8F5','#EFEBFF']},P:{i:3,n:'펜타클',nick:'황금 동전',icon:'🪙',el:2,elName:'흙',theme:'돈과 생활',pal:['#21A86F','#9FDB6A','#E6F8E5']}};
@@ -320,6 +320,8 @@ function synthesis(){
  const links=['먼저','그런데','그리고','한편','또','그 위에','그래서','이어서','덧붙여','마지막으로'];
  const story=ps.map((p,i)=>{const c=cs[i],role=sp.spots[i][1],lab=sp.spots[i][0];const lk=i===n-1?'마지막으로':links[Math.min(i,links.length-2)];return `${lk} <b>${esc(lab)}</b> 자리에는 ‘${esc(c.name)}’ 카드가 나왔어요 — <i>${esc(role.indexOf('block')>=0&&!(c.tone<0)?jo(c.kw,'이','가')+' 지나칠 때':c.kw)}</i>.`}).join(' ');
  out.paras.push(story);
+ const roleIdx=r=>sp.spots.findIndex(x=>x[1]===r),ni=roleIdx('now')>=0?roleIdx('now'):roleIdx('past'),bi2=roleIdx('block'),ai=roleIdx('advice')>=0?roleIdx('advice'):roleIdx('future');
+ if(ni>=0&&ai>=0){const nc=cs[ni],ac=cs[ai],bc2=bi2>=0?cs[bi2]:null;out.paras.push(`이야기를 이어 보면, 지금은 ‘${esc(nc.kw)}’의 모습인데${bc2?` ‘${esc(bc2.tone<0?bc2.kw:jo(bc2.kw,'이','가')+' 지나친 것')}’ 때문에 발걸음이 무거워지기 쉬워요`:''}. 그 매듭은 ‘${esc(ac.kw)}’로 풀어 갈 수 있어요. ${esc(sit.label)} 고민이라면, ${sit.ex[exKey(ac)]}`)}
  const maj=cs.filter(c=>c.arc==='major').length,cnt={};cs.forEach(c=>{if(c.sk!=='M')cnt[c.sk]=(cnt[c.sk]||0)+1});const dom=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
  let flavor=`전체적으로 <b>${out.mood}</b>예요. `;
  if(maj>=Math.ceil(n/2))flavor+='큰 그림 카드(메이저)가 많이 나와서, 이번 고민은 인생에서 꽤 중요한 갈림길이라는 신호로 읽어요. ';
@@ -352,7 +354,7 @@ function promptCoach(q){if(/(죽고 싶|자살|자해|해치고 싶|사라지고
  if(/(합격할까|될까요|될까\?|성공할까|오를까|당첨|붙을까)/.test(q))return {t:'“될까?”보다 “잘되려면 내가 무엇을 준비할까?”로 바꿔 물으면 카드가 더 쓸모 있는 이야기를 들려줘요.'};return null}
 function qStep(){const daily=load(KEYS.daily,null),dToday=daily&&daily.date===today();const draft=(()=>{try{return JSON.parse(sessionStorage.getItem(KEYS.draft)||'null')}catch(e){return null}})();
  $('#main').innerHTML=`${draft&&draft.picked&&draft.picked.length&&Date.now()-draft.created<3600000?`<section class="card note"><b>📌 아까 뽑은 카드 이야기가 있어요</b><button class="btn soft sm" id="reopen">다시 보기</button></section>`:''}
- ${st.source?`<section class="card note mint"><b>🌳 명리 나침반에서 왔어요</b><p>사주에서 쓰던 질문을 가져왔어요.${st.source.element!=null?` 사주 속 <b>${FR[st.source.element]} 친구</b>와 카드를 함께 읽어 드릴게요.`:''} 생년월일은 옮기지 않았어요.</p></section>`:''}
+ ${st.source&&!st.source.fromRecord?`<section class="card note mint"><b>🌳 명리 나침반에서 왔어요</b><p>사주에서 쓰던 질문을 가져왔어요.${st.source.element!=null?` 사주 속 <b>${FR[st.source.element]} 친구</b>와 카드를 함께 읽어 드릴게요.`:''} 생년월일은 옮기지 않았어요.</p></section>`:''}
  <section class="card daily"><div class="dl"><span class="big">🌞</span><div><b>오늘의 카드 · ${new Date().getMonth()+1}월 ${new Date().getDate()}일</b><p>${dToday?'오늘 이미 뽑았어요. 다시 보기만 할 수 있어요.':'하루에 한 장! 질문 없이 바로 뽑아요.'}</p></div></div><button class="btn primary full" id="dailyBtn">${dToday?'오늘의 카드 다시 보기':'오늘의 카드 뽑기'}</button></section>
  <section class="card"><h2>💬 무엇이 궁금하세요?</h2><div class="qwrap"><textarea id="question" maxlength="400" placeholder="예: 친구랑 화해하려면 어떻게 할까?">${esc(st.question)}</textarea><button class="mic" id="voiceBtn" aria-label="말로 입력">🎤</button></div><p class="help">🎤를 누르고 말해도 돼요. 안 되면 휴대폰 키보드의 마이크를 쓰세요. (음성은 브라우저 회사 서버에서 글자로 바뀔 수 있어요)</p>
  <div class="chips">${[['💼 이직','이직을 하려면 무엇부터 준비할까요?'],['🧑‍🤝‍🧑 친구','친구와 다퉜는데 어떻게 화해할까요?'],['📚 시험','다음 시험을 잘 보려면 무엇을 바꿀까요?'],['💰 용돈','용돈을 아껴 쓰려면 어떻게 할까요?'],['💞 짝사랑','좋아하는 사람과 가까워지려면 어떻게 할까요?'],['🎤 발표','발표가 떨리는데 어떻게 준비할까요?']].map(x=>`<button class="chip" data-q="${esc(x[1])}">${x[0]}</button>`).join('')}</div>
@@ -423,7 +425,7 @@ function resultStep(){const sp=SP(st.spread),sy=synthesis(),easy=st.resultTab===
  <section class="card lucky">${luckyBox()}</section>`:expertBox()}
  <section class="card share"><h3>📮 나누고 기록하기</h3><div class="grid3"><button class="btn soft" id="shareText">💬 글로 보내기</button><button class="btn soft" id="shareImg">🖼️ 이미지</button><button class="btn soft" id="saveR">📖 일기에 저장</button></div><div class="grid2"><button class="btn soft" id="listen">🔊 읽어 주기</button><button class="btn soft" id="goSaju">🌳 사주 보러 가기</button></div><p class="help">질문은 기본으로 공유 글에 넣지 않아요. 카드는 질문이나 사주와 상관없이 무작위로 정해졌어요.${st.weakRandom?' (이 브라우저는 보안 난수를 지원하지 않아 일반 난수로 섞었어요)':''}</p><p class="foot">타로는 정해진 미래를 알려 주는 것이 아니라, 지금의 나를 돌아보는 재미있는 이야기예요.</p></section>`;
  $('#tEasy').onclick=()=>{st.resultTab='easy';render()};$('#tExp').onclick=()=>{st.resultTab='exp';render()};$('#shareText').onclick=shareDialog;$('#shareImg').onclick=shareImage;$('#saveR').onclick=saveReading;$('#listen').onclick=listen;$('#goSaju').onclick=gotoSaju;
- actions([{label:'↺ 새 질문',fn:()=>{st.step=1;st.question='';st.picked=[];st.flipped=[];st.daily=false;render()}},{label:'📖 내 타로 일기',primary:true,fn:openHistory}])}
+ actions([{label:'↺ 새 질문',fn:()=>{st.step=1;st.question='';st.picked=[];st.flipped=[];st.daily=false;if(st.source&&st.source.fromRecord)st.source=null;render()}},{label:'📖 내 타로 일기',primary:true,fn:openHistory}])}
 function luckyBox(){const ad=adviceCard().c,k=ad.arc==='major'?'M':ad.sk;const L={M:['보라·금색','별 모양 소품','“나는 지금 중요한 길 위에 있어!”'],W:['주황·빨강','따뜻한 차 한 잔','“완벽하지 않아도 일단 시작!”'],C:['하늘·파랑','좋아하는 노래 한 곡','“내 마음을 먼저 안아 주자.”'],S:['보라·은색','작은 메모장','“사실부터 차근차근!”'],P:['초록·노랑','동전 저금통','“조금씩, 꾸준히가 이긴다.”']}[k];return `<h3>🍀 오늘의 행운 처방전</h3><div class="grid3 lk"><div><span>🎨</span><b>행운 색</b>${L[0]}</div><div><span>🎁</span><b>행운 아이템</b>${L[1]}</div><div><span>🪄</span><b>오늘의 주문</b>${L[2]}</div></div><p class="help">‘${esc(ad.name)}’ 카드에서 뽑은 재미용 처방이에요.</p>`}
 function expertBox(){const sp=SP(st.spread),cs=st.picked.map(p=>CARD(p.id)),cnt={};cs.forEach(c=>{const k=c.sk;cnt[k]=(cnt[k]||0)+1});const rev=st.picked.filter(p=>p.rev).length,avg=st.picked.reduce((s,p)=>s+toneOf(p),0)/st.picked.length;
  return `<section class="card"><h2>🔎 전문가용 분석</h2><div class="pills"><span>전체 ${cs.length}장</span><span>메이저 ${cnt.M||0}장</span><span>역방향 ${rev}장</span><span>밝기 평균 ${avg.toFixed(2)}</span></div><h3>무늬(원소) 분포</h3><div class="pills">${SKEYS.map(k=>`<span>${SUITS[k].icon} ${SUITS[k].n}(${SUITS[k].elName}) ${cnt[k]||0}</span>`).join('')}</div><p class="help">서양 타로의 네 무늬는 불·물·공기(바람)·흙에 대응해요. 사주의 오행과 1:1로 같은 분류는 아니에요.</p>
@@ -431,9 +433,9 @@ function expertBox(){const sp=SP(st.spread),cs=st.picked.map(p=>CARD(p.id)),cnt=
  <p class="help">해석 원칙: 카드 뜻은 웨이트–스미스 전통의 일반적 의미를 쉬운 말로 옮겼고, 자리(현재·걸림돌·조언 등)에 따라 읽는 방향을 바꿨어요. 걸림돌 자리의 밝은 카드는 ‘지나치면 생기는 그림자’로 읽어요.</p></section>`}
 
 /* 저장·복원 */
-function recordObj(){return {id:st.readId,created:Date.now(),question:st.question,topic:st.topic,spread:st.spread,reversed:st.reversed,picked:st.picked.map(p=>({id:p.id,rev:p.rev,pos:p.pos})),a:st.a,b:st.b,daily:st.daily}}
+function recordObj(){return {id:st.readId,created:Date.now(),question:st.question,topic:st.topic,spread:st.spread,reversed:st.reversed,picked:st.picked.map(p=>({id:p.id,rev:p.rev,pos:p.pos})),a:st.a,b:st.b,daily:st.daily,link:(st.source&&st.source.element!=null)?{element:+st.source.element,nick:String(st.source.nick||'').slice(0,20)}:null}}
 function persistDraft(){try{sessionStorage.setItem(KEYS.draft,JSON.stringify({...recordObj(),created:Date.now()}))}catch(e){}}
-function restore(rec){if(!rec||!Array.isArray(rec.picked)||!SP(rec.spread)){toast('기록을 열 수 없어요.');return}const ok=rec.picked.filter(p=>CARD(p.id));if(ok.length!==SP(rec.spread).spots.length){toast('이 기록의 카드 수가 맞지 않아요.');return}Object.assign(st,{question:rec.question||'',topic:rec.topic||'general',spread:rec.spread,reversed:!!rec.reversed,picked:ok,flipped:ok.map(()=>true),a:rec.a||'',b:rec.b||'',daily:!!rec.daily,readId:rec.id||'',step:5,resultTab:'easy'});closeModal();render()}
+function restore(rec){if(!rec||!Array.isArray(rec.picked)||!SP(rec.spread)){toast('기록을 열 수 없어요.');return}const ok=rec.picked.filter(p=>CARD(p.id));if(ok.length!==SP(rec.spread).spots.length){toast('이 기록의 카드 수가 맞지 않아요.');return}Object.assign(st,{question:rec.question||'',topic:rec.topic||'general',spread:rec.spread,reversed:!!rec.reversed,picked:ok,flipped:ok.map(()=>true),a:rec.a||'',b:rec.b||'',daily:!!rec.daily,readId:rec.id||'',step:5,resultTab:'easy',source:(rec.link&&rec.link.element>=0&&rec.link.element<=4)?{element:+rec.link.element,nick:rec.link.nick||'',fromRecord:true}:null});closeModal();render()}
 function saveReading(){const items=load(KEYS.history,[]);if(!Array.isArray(items))return toast('저장 자료 형식이 달라 저장하지 않았어요.');if(items.some(x=>x.id===st.readId))return toast('이미 일기에 저장된 이야기예요 📖');items.unshift(recordObj());if(items.length>150)items.length=150;if(save(KEYS.history,items))toast('타로 일기에 저장했어요! 📖')}
 function openHistory(){const list=load(KEYS.history,[]),seen=new Set(load(KEYS.seen,[]));const L=Array.isArray(list)?list:[];
  modal(`<h2>📖 내 타로 일기</h2><p class="muted">저장한 이야기 ${L.length}개 · 만난 카드 <b>${seen.size}</b>/78장</p><div class="prog"><i style="width:${Math.round(seen.size/78*100)}%"></i></div><div class="grid2"><button class="btn soft sm" id="col">🃏 78장 도감</button><button class="btn soft sm" id="wipe">기록 모두 지우기</button></div><div class="hist">${L.length?L.slice(0,100).map(x=>`<div class="hi"><b>${esc(x.question||(x.daily?'오늘의 카드':'질문 없는 카드'))}</b><small>${new Date(x.created).toLocaleString('ko-KR')} · ${esc((SP(x.spread)||{}).title||'')} · ${x.picked.map(p=>(CARD(p.id)||{}).emoji||'').join('')}</small><div class="grid2"><button class="btn soft sm" data-load="${esc(x.id)}">다시 읽기</button><button class="btn ghost sm" data-del="${esc(x.id)}">지우기</button></div></div>`).join(''):'<p class="help">아직 저장한 이야기가 없어요.</p>'}</div><button class="btn soft full" data-close>닫기</button>`);
@@ -456,13 +458,14 @@ function listen(){if(!('speechSynthesis'in window))return toast('읽어 주기�
 
 /* 사주 연동 */
 function sajuUrl(){return (st.prefs.sajuUrl||DEFAULT_SAJU).trim()}
-function gotoSaju(){const url=sajuUrl();if(/^(javascript|data):/i.test(url))return toast('사주 주소가 올바르지 않아요.');if(st.question){save(KEYS.bridge,{question:st.question,topic:st.topic,createdAt:Date.now(),source:'tarot'})}location.href=url.split('#')[0]+(st.question?'#tq='+encodeURIComponent(st.question.slice(0,300)):'')}
+function gotoSaju(){const qe=document.getElementById('question');if(st.step===1&&qe)st.question=qe.value.trim();const url=sajuUrl();if(/^(javascript|data):/i.test(url))return toast('사주 주소가 올바르지 않아요.');if(st.question){save(KEYS.bridge,{question:st.question,topic:st.topic,createdAt:Date.now(),source:'tarot'})}location.href=url.split('#')[0]+(st.question?'#tq='+encodeURIComponent(st.question.slice(0,300)):'')}
 function importBridge(){let src=null;try{const h=new URLSearchParams(location.hash.slice(1));if(h.get('from')==='saju'){src={question:(h.get('q')||'').slice(0,400),topic:h.get('t')||'',element:h.get('e')!==null&&h.get('e')!==''?+h.get('e'):null,nick:'',linkId:h.get('id')||'',createdAt:Date.now()};history.replaceState(null,'',location.pathname+location.search)}}catch(e){}
  const b=load(KEYS.bridge,null);if(b&&b.source==='saju'&&Date.now()-(b.createdAt||0)<1800000&&(!src||!src.linkId||src.linkId===b.linkId)){src=Object.assign({},b,src&&src.question?{question:src.question}:{});}
  try{if(b&&b.source==='saju')localStorage.removeItem(KEYS.bridge)}catch(e){}
  if(!src)return;if(src.element!=null&&!(src.element>=0&&src.element<=4))src.element=null;st.source=src;st.question=String(src.question||'').slice(0,400);const map={job:'job',work:'job',money:'money',love:'love',family:'family',people:'friend',study:'exam',choice:'choice',move:'move',health:'health',general:'general'};st.topic=map[src.topic]||guessTopic(st.question);if(st.question)st.topic=guessTopic(st.question)!=='general'?guessTopic(st.question):st.topic}
 function openSettings(){const people=load('saju_people',[]);modal(`<h2>⚙️ 사주와 연결</h2><p class="muted">타로 카드는 사주와 상관없이 무작위로 뽑아요. 연결하면 질문을 주고받고, 사주 속 <b>오행 친구</b>와 카드를 함께 읽어 드려요.</p><label class="label" for="sajuUrl">명리 나침반 주소</label><input type="text" id="sajuUrl" value="${esc(sajuUrl())}"><button class="btn soft sm" id="saveUrl">주소 저장</button>${Array.isArray(people)&&people.length?`<p class="help">이 기기에 사주에서 저장한 사람이 ${people.length}명 있어요. 사주 결과 화면의 ‘🔮 타로로 이어 보기’ 버튼을 누르면 그 사람의 오행 친구가 함께 넘어와요.</p>`:'<p class="help">사주와 타로를 같은 GitHub 주소(mathlhk15-glitch.github.io)에 올리면 저장 공간을 함께 써요. 다른 곳에 있어도 질문은 주소(#)로 넘어가요.</p>'}<button class="btn ghost full" data-close>닫기</button>`);$('#saveUrl').onclick=()=>{const v=$('#sajuUrl').value.trim();if(!v||/^(javascript|data):/i.test(v))return toast('올바른 주소를 넣어 주세요.');st.prefs.sajuUrl=v;save(KEYS.settings,st.prefs);toast('저장했어요.')}}
 
+window.__tarotGotoSaju=()=>gotoSaju();window.__tarotSajuUrl=()=>sajuUrl();
 function init(){st.prefs=Object.assign({sajuUrl:DEFAULT_SAJU},load(KEYS.settings,{}));importBridge();if(st.question&&st.topic==='general')st.topic=guessTopic(st.question);render();$('#openHistory').onclick=openHistory;$('#openSettings').onclick=openSettings;addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)closeModal()})}
 init();
 })();
@@ -483,8 +486,10 @@ init();
  function init(){if(document.getElementById('tarotTopSajuLink'))return;
    var cover=document.querySelector('.cover');if(!cover)return;
    var nav=document.createElement('nav');nav.id='tarotTopSajuLink';nav.className='tarot-cross-nav';nav.setAttribute('aria-label','명리 나침반 바로가기');
-   nav.innerHTML='<span><strong>🌳 사주 운세도 궁금한가요?</strong>생년월일로 보는 큰 흐름</span><a href="'+SAJU+'">🧭 사주 보러 가기</a>';
+   var url=SAJU;try{url=(window.__tarotSajuUrl&&window.__tarotSajuUrl())||SAJU}catch(e){}
+   nav.innerHTML='<span><strong>🌳 사주 운세도 궁금한가요?</strong>생년월일로 보는 큰 흐름</span><a href="'+String(url).replace(/"/g,'&quot;')+'">🧭 사주 보러 가기</a>';
    cover.insertAdjacentElement('afterend',nav);
+   nav.querySelector('a').addEventListener('click',function(e){if(typeof window.__tarotGotoSaju==='function'){e.preventDefault();var q=document.getElementById('question');if(q&&q.value.trim()){q.dispatchEvent(new Event('input'))}window.__tarotGotoSaju();}});
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
